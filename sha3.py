@@ -1,6 +1,6 @@
 # sha3.py
 # Dylan and Keegan Palmieri
-# SHA-3 implementation
+# SHA3-256 implementation
 # CS301 Fall 2019
 
 """
@@ -11,10 +11,11 @@ Functions
 
 Vars
     Input bit string N
-    permutation block width b
-    rate r - size of read and write chunks (?)
-    output length d
+    permutation block width b = 1600
+    rate r - size of read and write chunks = 1088
+    output length d = 256
     array State = 5x5 array of shorts (64 bits)
+    capacity c = 512
 """
 
 
