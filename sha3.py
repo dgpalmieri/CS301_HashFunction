@@ -10,22 +10,6 @@ import bitstring
 import constant
 
 
-"""
-Functions
-    Main SHA-3 compute
-    Padding function
-    Block permutation
-
-Vars
-    Input bit string N
-    permutation block width b = 1600
-    rate r - size of read and write chunks = 1088
-    output length d = 256
-    array State = 5x5 array of shorts (64 bits)
-    capacity c = 512
-"""
-
-
 def compute_sha3(input_string):
     pad_input(input_string)
     padded_input = input_string
