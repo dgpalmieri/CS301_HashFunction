@@ -3,6 +3,11 @@
 # SHA3-256 implementation
 # CS301 Fall 2019
 
+
+import sys
+from os import path
+import bitstring
+
 """
 Functions
     Main SHA-3 compute
@@ -32,7 +37,17 @@ def block_permutation():
 
 
 def main():
-    print("Hello!")
+    if not len(sys.argv) > 1:
+        sys.argv.append("A")
+
+    if path.isfile(sys.argv[1]):
+        N = bitstring.ConstBitStream(open(sys.argv[1], "rb").read())
+    else:
+        N = bitstring.ConstBitStream(
+            bin(int(''.join(format(ord(x), 'b') for x in sys.argv[1]), base=2))
+        )
+
+    print(N)
 
 
 main()
