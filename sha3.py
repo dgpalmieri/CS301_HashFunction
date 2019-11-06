@@ -24,12 +24,25 @@ Vars
 """
 
 
-def compute_sha3():
-    pass
+def compute_sha3(input_string):
+    pad_input(input_string)
+    padded_input = input_string
+    padded_input.pos = 0
+    p_i = []
+    for x in range(0, int(padded_input.len/1088)):
+        p_i.append(padded_input.read('bin:1088'))
+    state = bitstring.BitStream('0b0')
+    for _ in range(1599):
+        state.prepend('0b0')
+
+    return "Hello!"  # input_hash
 
 
-def pad_input():
-    pass
+def pad_input(string_to_pad):
+    string_to_pad.prepend('0b1')
+    while string_to_pad.len % 1088 != 1087:
+        string_to_pad.prepend('0b0')
+    string_to_pad.prepend('0b1')
 
 
 def block_permutation():
@@ -41,13 +54,14 @@ def main():
         sys.argv.append("A")
 
     if path.isfile(sys.argv[1]):
-        N = bitstring.ConstBitStream(open(sys.argv[1], "rb").read())
+        input_string = bitstring.BitStream(open(sys.argv[1], "rb").read())
     else:
-        N = bitstring.ConstBitStream(
+        input_string = bitstring.BitStream(
             bin(int(''.join(format(ord(x), 'b') for x in sys.argv[1]), base=2))
         )
 
-    print(N)
+    input_hash = compute_sha3(input_string)
+    print("This is the hash of the given string or filename: %s" % input_hash)
 
 
 main()
