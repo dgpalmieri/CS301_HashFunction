@@ -7,6 +7,8 @@
 import sys
 from os import path
 import bitstring
+import constant
+
 
 """
 Functions
@@ -28,19 +30,22 @@ def compute_sha3(input_string):
     pad_input(input_string)
     padded_input = input_string
     padded_input.pos = 0
-    p_i = []
-    for x in range(0, int(padded_input.len/1088)):
-        p_i.append(padded_input.read('bin:1088'))
+    padded_input_list = []
+    for x in range(0, int(padded_input.len/constant.BIT_RATE)):
+        padded_input_list.append(padded_input.read('bin:' + str(constant.BIT_RATE)))
     state = bitstring.BitStream('0b0')
-    for _ in range(1599):
+    for _ in range(constant.BLOCK_WIDTH - 1):
         state.prepend('0b0')
+
+    for p_i in padded_input_list:
+        pass
 
     return "Hello!"  # input_hash
 
 
 def pad_input(string_to_pad):
     string_to_pad.prepend('0b1')
-    while string_to_pad.len % 1088 != 1087:
+    while string_to_pad.len % constant.BIT_RATE != (constant.BIT_RATE - 1):
         string_to_pad.prepend('0b0')
     string_to_pad.prepend('0b1')
 
