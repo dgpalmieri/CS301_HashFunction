@@ -4,7 +4,8 @@
 # CS301 Fall 2019
 
 
-import sys
+import argparse  # Use with CLI method of input
+import sys  # Use with debugging/writing input
 from os import path
 import bitstring
 import constant
@@ -16,9 +17,9 @@ def compute_sha3(input_string):
     padded_input_list = []
 
     for x in range(0, int(padded_input.len/constant.BIT_RATE)):
-        padded_input_list.append(
-            bitstring.BitArray(padded_input[x*constant.BIT_RATE:(x+1)*constant.BIT_RATE])
-        )
+        padded_input_list.append(bitstring.BitArray(
+            padded_input[x*constant.BIT_RATE:(x+1)*constant.BIT_RATE]
+        ))
 
     state = bitstring.BitArray('0b0')
     for _ in range(constant.BLOCK_WIDTH - 1):
@@ -50,19 +51,43 @@ def block_permutation(state):
     pass
 
 
-def main():
+def main(function_arg=None):
+
+    # USE THIS WHEN READY TO DEPLOY
+    #    parser = argparse.ArgumentParser(
+    #        description='Compute the SHA3-256 hash of an input.')
+    #    parser.add_argument('input', metavar='input', type=str,
+    #                        help='A relative or absolute filepath, a filename'
+    #                             'in the current directory, or a string value')
+    #    cline_args = parser.parse_args()
+    #
+    #    if not cline_args and not function_arg:
+    #        arg = "A"
+    #
+    #    input_hash = type(cline_args)  # compute_sha3(input_string)
+    #    print("This is the hash of the given string or filename: %s" % input_hash)
+
+    # USE THIS WHILE WRITING IN IDE
     if not len(sys.argv) > 1:
         sys.argv.append("A")
 
-    if path.isfile(sys.argv[1]):
-        input_string = bitstring.BitArray(open(sys.argv[1], "rb").read())
+    if path.isfile(sys.argv[1]) or function_arg and path.isfile(function_arg):
+        if function_arg:
+            input_string = bitstring.BitArray(open(function_arg, "rb").read())
+        else:
+            input_string = bitstring.BitArray(open(sys.argv[1], "rb").read())
+    elif function_arg:
+        input_string = bitstring.BitArray(bin(int(
+            ''.join(format(ord(x), 'b') for x in function_arg), base=2
+        )))
     else:
-        input_string = bitstring.BitArray(
-            bin(int(''.join(format(ord(x), 'b') for x in sys.argv[1]), base=2))
-        )
+        input_string = bitstring.BitArray(bin(int(
+            ''.join(format(ord(x), 'b') for x in sys.argv[1]), base=2
+        )))
 
     input_hash = compute_sha3(input_string)
     print("This is the hash of the given string or filename: %s" % input_hash)
+
 
 # hash of "" a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a
 main()
