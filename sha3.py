@@ -48,6 +48,56 @@ def pad_input(string_to_pad):
 
 
 def block_permutation(state):
+    count = 0
+    state_array = [[[int(0) for _ in range(4)] for _ in range(4)] for _ in range(constant.WORD_SIZE)]
+
+    for x in range(4):
+        for y in range(4):
+            for z in range(constant.WORD_SIZE):
+                print(z)
+                state_array[x][y][z] = state[count]
+                count += 1
+                assert(count <= state.len)
+
+    for _ in range(12 + 2*constant.WORD_SIZE):
+        theta(state_array)
+        rho(state_array)
+        pi(state_array)
+        chi(state_array)
+        iota(state_array)
+
+    for i in range(4):
+        for j in range(4):
+            for k in range(constant.WORD_SIZE):  # TODO Fix the type error
+                state[(5*i + j)*constant.WORD_SIZE + k] = bitstring.BitArray(state_array[i][j][k])
+
+
+def theta(state_array):
+    C = [[0 for _ in range(4)] for _ in range(constant.WORD_SIZE)]
+    for x in range(4):
+        for z in range(constant.WORD_SIZE):  # TODO Fix XOR not supported for input types
+            print(x)
+            print(z)
+            C[x][z] = 8  # state_array[x, 0, z] ^ state_array[x, 1, z]  # ^ state_array[x, 2, z] ^ state_array[x, 3, z] ^ state_array[x, 4, z]
+    D = [[0 for _ in range(4)] for _ in range(constant.WORD_SIZE)]
+    for x in range(4):
+        for z in range(constant.WORD_SIZE):
+            D[x][z] = C[(x - 1) % 5, z] ^ C[(x + 1) % 5, (z - 1) % constant.WORD_SIZE]
+
+
+def rho(state_array):
+    pass
+
+
+def pi(state_array):
+    pass
+
+
+def chi(state_array):
+    pass
+
+
+def iota(state_array):
     pass
 
 
@@ -64,13 +114,14 @@ def main(function_arg=None):
     #    if not cline_args and not function_arg:
     #        arg = "A"
     #
-    #    input_hash = type(cline_args)  # compute_sha3(input_string)
+    #    input_hash = compute_sha3(input_string)
     #    print("This is the hash of the given string or filename: %s" % input_hash)
 
     # USE THIS WHILE WRITING IN IDE
     if not len(sys.argv) > 1:
         sys.argv.append("A")
 
+    # Consider using mmap here
     if path.isfile(sys.argv[1]) or function_arg and path.isfile(function_arg):
         if function_arg:
             input_string = bitstring.BitArray(open(function_arg, "rb").read())
