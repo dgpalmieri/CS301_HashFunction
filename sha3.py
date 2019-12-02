@@ -16,7 +16,7 @@ def compute_sha3(input_string):
     padded_input = input_string
     padded_input_list = []
 
-    for x in range(0, int(padded_input.len/constant.BIT_RATE)):
+    for x in range(int(padded_input.len/constant.BIT_RATE)):
         padded_input_list.append(bitstring.BitArray(
             padded_input[x*constant.BIT_RATE:(x+1)*constant.BIT_RATE]
         ))
@@ -49,12 +49,11 @@ def pad_input(string_to_pad):
 
 def block_permutation(state):
     count = 0
-    state_array = [[[int(0) for _ in range(4)] for _ in range(4)] for _ in range(constant.WORD_SIZE)]
+    state_array = [[[int(0) for _ in range(constant.WORD_SIZE)] for _ in range(5)] for _ in range(5)]
 
-    for x in range(4):
-        for y in range(4):
+    for x in range(5):
+        for y in range(5):
             for z in range(constant.WORD_SIZE):
-                print(z)
                 state_array[x][y][z] = state[count]
                 count += 1
                 assert(count <= state.len)
@@ -66,23 +65,23 @@ def block_permutation(state):
         chi(state_array)
         iota(state_array)
 
-    for i in range(4):
-        for j in range(4):
-            for k in range(constant.WORD_SIZE):  # TODO Fix the type error
-                state[(5*i + j)*constant.WORD_SIZE + k] = bitstring.BitArray(state_array[i][j][k])
+    for i in range(5):
+        for j in range(5):
+            for k in range(constant.WORD_SIZE):
+                state[(5*i + j)*constant.WORD_SIZE + k] = state_array[i][j][k]
 
 
 def theta(state_array):
-    C = [[0 for _ in range(4)] for _ in range(constant.WORD_SIZE)]
-    for x in range(4):
-        for z in range(constant.WORD_SIZE):  # TODO Fix XOR not supported for input types
-            print(x)
-            print(z)
-            C[x][z] = 8  # state_array[x, 0, z] ^ state_array[x, 1, z]  # ^ state_array[x, 2, z] ^ state_array[x, 3, z] ^ state_array[x, 4, z]
-    D = [[0 for _ in range(4)] for _ in range(constant.WORD_SIZE)]
-    for x in range(4):
+    C = [[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)]
+    for x in range(5):
         for z in range(constant.WORD_SIZE):
-            D[x][z] = C[(x - 1) % 5, z] ^ C[(x + 1) % 5, (z - 1) % constant.WORD_SIZE]
+            C[x][z] = state_array[x][0][z] ^ state_array[x][1][z] ^ \
+                      state_array[x][2][z] ^ state_array[x][3][z] ^ \
+                      state_array[x][4][z]
+    D = [[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)]
+    for x in range(5):
+        for z in range(constant.WORD_SIZE):
+            D[x][z] = C[(x - 1) % 5][z] ^ C[(x + 1) % 5][(z - 1) % constant.WORD_SIZE]
 
 
 def rho(state_array):
