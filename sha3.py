@@ -104,15 +104,24 @@ def rho(state_array):
 
 
 def pi(state_array):
-    pass
+    state_array_prime = [[[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)] for _ in range(5)]
+    for x in range(5):
+        for y in range(5):
+            for z in range(constant.WORD_SIZE):
+                state_array_prime[x][y][z] = state_array[(x + 3*y) % 5][x][z]
+    return state_array_prime
 
 
 def chi(state_array):
-    pass
+    state_array_prime = [[[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)] for _ in range(5)]
+
+    return state_array
 
 
 def iota(state_array):
-    pass
+    state_array_prime = [[[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)] for _ in range(5)]
+
+    return state_array
 
 
 def main(function_arg=None):
