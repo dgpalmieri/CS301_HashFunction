@@ -8,6 +8,7 @@ import argparse  # Use with CLI method of input
 import sys  # Use with debugging/writing input
 from os import path
 import bitstring
+from copy import deepcopy
 import constant
 
 
@@ -59,11 +60,11 @@ def block_permutation(state):
                 assert(count <= state.len)
 
     for _ in range(12 + 2*constant.WORD_SIZE):
-        theta(state_array)
-        rho(state_array)
-        pi(state_array)
-        chi(state_array)
-        iota(state_array)
+        state_array = theta(state_array)
+        state_array = rho(state_array)
+        state_array = pi(state_array)
+        state_array = chi(state_array)
+        state_array = iota(state_array)
 
     for i in range(5):
         for j in range(5):
@@ -82,10 +83,24 @@ def theta(state_array):
     for x in range(5):
         for z in range(constant.WORD_SIZE):
             D[x][z] = C[(x - 1) % 5][z] ^ C[(x + 1) % 5][(z - 1) % constant.WORD_SIZE]
+    state_array_prime = deepcopy(state_array)
+    for x in range(5):
+        for y in range(5):
+            for z in range(constant.WORD_SIZE):
+                state_array_prime[x][y][z] = state_array[x][y][z] ^ D[x][z]
+    return state_array_prime
 
 
 def rho(state_array):
-    pass
+    state_array_prime = [[[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)] for _ in range(5)]
+    for z in range(constant.WORD_SIZE):
+        state_array_prime[0][0][z] = state_array[0][0][z]
+    x, y = 1, 0
+    for t in range(24):
+        for z in range(constant.WORD_SIZE):
+            state_array_prime[x][y][z] = state_array[x][y][z - int((t+1)*(t+2)/2) % constant.WORD_SIZE]
+            x, y = y, (2*x + 3*y) % 5
+    return state_array_prime
 
 
 def pi(state_array):
