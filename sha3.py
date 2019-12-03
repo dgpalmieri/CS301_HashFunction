@@ -76,9 +76,9 @@ def theta(state_array):
     C = [[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)]
     for x in range(5):
         for z in range(constant.WORD_SIZE):
-            C[x][z] = state_array[x][0][z] ^ state_array[x][1][z] ^ \
-                      state_array[x][2][z] ^ state_array[x][3][z] ^ \
-                      state_array[x][4][z]
+            C[x][z] = (state_array[x][0][z] ^ state_array[x][1][z] ^
+                       state_array[x][2][z] ^ state_array[x][3][z] ^
+                       state_array[x][4][z])
     D = [[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)]
     for x in range(5):
         for z in range(constant.WORD_SIZE):
@@ -114,14 +114,23 @@ def pi(state_array):
 
 def chi(state_array):
     state_array_prime = [[[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)] for _ in range(5)]
-
-    return state_array
+    for x in range(5):
+        for y in range(5):
+            for z in range(constant.WORD_SIZE):
+                state_array_prime[x][y][z] = (state_array[x][y][z] ^
+                                              ((state_array[(x+1) % 5][y][z] ^ 1) *
+                                               state_array[(x+2) % 5][y][z]))
+    return state_array_prime
 
 
 def iota(state_array):
     state_array_prime = [[[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)] for _ in range(5)]
 
     return state_array
+
+
+def round_constant_generation(t):
+    return t
 
 
 def main(function_arg=None):
@@ -163,5 +172,5 @@ def main(function_arg=None):
     print("This is the hash of the given string or filename: %s" % input_hash)
 
 
-# hash of "" a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a
+# hash of "A" 1c9ebd6caf02840a5b2b7f0fc870ec1db154886ae9fe621b822b14fd0bf513d6
 main()
