@@ -59,12 +59,12 @@ def block_permutation(state):
                 count += 1
                 assert(count <= state.len)
 
-    for _ in range(12 + 2*constant.WORD_SIZE):
+    for i in range(12 + 2*constant.WORD_POWER):
         state_array = theta(state_array)
         state_array = rho(state_array)
         state_array = pi(state_array)
         state_array = chi(state_array)
-        state_array = iota(state_array)
+        state_array = iota(state_array, i)
 
     for i in range(5):
         for j in range(5):
@@ -123,14 +123,28 @@ def chi(state_array):
     return state_array_prime
 
 
-def iota(state_array):
-    state_array_prime = [[[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)] for _ in range(5)]
-
-    return state_array
+def iota(state_array, round_index):
+    state_array_prime = deepcopy(state_array)
+    RC = [0 for _ in range(constant.WORD_SIZE)]
+    for j in range(constant.WORD_POWER):
+        RC[pow(2, j) - 1] = round_constant_generation(j + 7*round_index)
+    for z in range(constant.WORD_SIZE):
+        state_array_prime[0][0][z] = state_array[0][0][z] ^ RC[z]
+    return state_array_prime
 
 
 def round_constant_generation(t):
-    return t
+    if t % 255 == 0:
+        return 1
+    R = [1, 0, 0, 0, 0, 0, 0, 0]
+    for i in range(1, t % 255):
+        R.insert(0, 0)
+        R[0] = R[0] ^ R[8]
+        R[4] = R[4] ^ R[8]
+        R[5] = R[5] ^ R[8]
+        R[6] = R[6] ^ R[8]
+        del(R[8:])
+    return R[0]
 
 
 def main(function_arg=None):
