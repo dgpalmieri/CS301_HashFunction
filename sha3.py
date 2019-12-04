@@ -4,7 +4,7 @@
 # CS301 Fall 2019
 
 
-import argparse  # Use with CLI method of input
+# import argparse  # Use with CLI method of input
 import sys  # Use with debugging/writing input
 from os import path
 import bitstring
@@ -56,33 +56,33 @@ def block_permutation(state):
             for z in range(constant.WORD_SIZE):
                 state_array[x][y][z] = state[constant.WORD_SIZE*(5*y + x) + z]
 
-    # for i in range(12 + 2*constant.WORD_POWER):
-    #    state_array = theta(state_array)
-    #    state_array = rho(state_array)
-    #    state_array = pi(state_array)
-    #    state_array = chi(state_array)
-    #    state_array = iota(state_array, i)
+    for i in range(12 + 2*constant.WORD_POWER):
+        state_array = theta(state_array)
+        state_array = rho(state_array)
+        state_array = pi(state_array)
+        state_array = chi(state_array)
+        state_array = iota(state_array, i)
 
     for i in range(5):
         for j in range(5):
             for k in range(constant.WORD_SIZE):
-                state_prime[(5*i + j)*constant.WORD_SIZE + k] = state_array[i][j][k]
-    print(state[:])
-    print(state_prime[:])
+                state_prime[constant.WORD_SIZE*(5*j + i) + k] = state_array[i][j][k]
+
     return state_prime
 
 
 def theta(state_array):
-    C = [[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)]
+    C = [[bitstring.Bits() for _ in range(constant.WORD_SIZE)] for _ in range(5)]
     for x in range(5):
         for z in range(constant.WORD_SIZE):
             C[x][z] = (state_array[x][0][z] ^ state_array[x][1][z] ^
                        state_array[x][2][z] ^ state_array[x][3][z] ^
                        state_array[x][4][z])
-    D = [[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)]
+    D = [[bitstring.Bits() for _ in range(constant.WORD_SIZE)] for _ in range(5)]
     for x in range(5):
         for z in range(constant.WORD_SIZE):
             D[x][z] = C[(x - 1) % 5][z] ^ C[(x + 1) % 5][(z - 1) % constant.WORD_SIZE]
+
     state_array_prime = deepcopy(state_array)
     for x in range(5):
         for y in range(5):
@@ -92,7 +92,7 @@ def theta(state_array):
 
 
 def rho(state_array):
-    state_array_prime = [[[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)] for _ in range(5)]
+    state_array_prime = deepcopy(state_array)
     for z in range(constant.WORD_SIZE):
         state_array_prime[0][0][z] = state_array[0][0][z]
     x, y = 1, 0
@@ -104,7 +104,7 @@ def rho(state_array):
 
 
 def pi(state_array):
-    state_array_prime = [[[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)] for _ in range(5)]
+    state_array_prime = deepcopy(state_array)
     for x in range(5):
         for y in range(5):
             for z in range(constant.WORD_SIZE):
@@ -113,7 +113,7 @@ def pi(state_array):
 
 
 def chi(state_array):
-    state_array_prime = [[[0 for _ in range(constant.WORD_SIZE)] for _ in range(5)] for _ in range(5)]
+    state_array_prime = deepcopy(state_array)
     for x in range(5):
         for y in range(5):
             for z in range(constant.WORD_SIZE):
@@ -147,7 +147,7 @@ def round_constant_generation(t):
     return R[0]
 
 
-def main(function_arg=None):
+def main():
 
     # USE THIS WHEN READY TO DEPLOY
     #    parser = argparse.ArgumentParser(
@@ -165,18 +165,11 @@ def main(function_arg=None):
 
     # USE THIS WHILE WRITING IN IDE
     if not len(sys.argv) > 1:
-        sys.argv.append("A")
+        sys.argv.append('A')
 
     # Consider using mmap here
-    if path.isfile(sys.argv[1]) or function_arg and path.isfile(function_arg):
-        if function_arg:
-            input_string = bitstring.BitArray(open(function_arg, "rb").read())
-        else:
-            input_string = bitstring.BitArray(open(sys.argv[1], "rb").read())
-    elif function_arg:
-        input_string = bitstring.BitArray(bin(int(
-            ''.join(format(ord(x), 'b') for x in function_arg), base=2
-        )))
+    if path.isfile(sys.argv[1]):
+        input_string = bitstring.BitArray(open(sys.argv[1], "rb").read())
     else:
         input_string = bitstring.BitArray(bin(int(
             ''.join(format(ord(x), 'b') for x in sys.argv[1]), base=2
