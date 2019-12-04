@@ -25,17 +25,16 @@ def compute_sha3(input_string):
     state = bitstring.BitArray('0b0')
     for _ in range(constant.BLOCK_WIDTH - 1):
         state.prepend('0b0')
-
     for p_i in padded_input_list:
         for _ in range(constant.CAPACITY):
             p_i.append("0b0")
         state ^= p_i
-        block_permutation(state)
+        state = block_permutation(state)
 
     input_hash = bitstring.BitArray()
     while input_hash.len < constant.OUTPUT_LENGTH:
         input_hash.append(state[0:constant.BIT_RATE])
-        block_permutation(state)
+        state = block_permutation(state)
     del(input_hash[constant.OUTPUT_LENGTH:])
 
     return input_hash
@@ -49,27 +48,28 @@ def pad_input(string_to_pad):
 
 
 def block_permutation(state):
-    count = 0
+    state_prime = deepcopy(state)
     state_array = [[[int(0) for _ in range(constant.WORD_SIZE)] for _ in range(5)] for _ in range(5)]
 
     for x in range(5):
         for y in range(5):
             for z in range(constant.WORD_SIZE):
-                state_array[x][y][z] = state[count]
-                count += 1
-                assert(count <= state.len)
+                state_array[x][y][z] = state[constant.WORD_SIZE*(5*y + x) + z]
 
-    for i in range(12 + 2*constant.WORD_POWER):
-        state_array = theta(state_array)
-        state_array = rho(state_array)
-        state_array = pi(state_array)
-        state_array = chi(state_array)
-        state_array = iota(state_array, i)
+    # for i in range(12 + 2*constant.WORD_POWER):
+    #    state_array = theta(state_array)
+    #    state_array = rho(state_array)
+    #    state_array = pi(state_array)
+    #    state_array = chi(state_array)
+    #    state_array = iota(state_array, i)
 
     for i in range(5):
         for j in range(5):
             for k in range(constant.WORD_SIZE):
-                state[(5*i + j)*constant.WORD_SIZE + k] = state_array[i][j][k]
+                state_prime[(5*i + j)*constant.WORD_SIZE + k] = state_array[i][j][k]
+    print(state[:])
+    print(state_prime[:])
+    return state_prime
 
 
 def theta(state_array):
