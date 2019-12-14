@@ -4,12 +4,54 @@
 # CS301 Fall 2019
 
 
-# import argparse  # Use with CLI method of input
-import sys  # Use with debugging/writing input
+import sys
 from os import path
 import bitstring
 from copy import deepcopy
 import constant
+
+
+"""
+SHA3-256 implementation in Python
+
+objective:
+Compute the SHA3-256 hash of a given input.
+
+arguments:
+arg -- string or filename to be hashed (default "A")
+
+For a nicely formatted document, see
+https://keccak.team/files/Keccak-submission-3.pdf, which is the write-up
+by the people who created the SHA3 Keccak algorithm with psuedocode and
+excellent explainations of what everything does and how it works.
+(And it has pictures!)
+
+Overview of the algorithm:
+For this implementation, we used the keccak-f[1600] algorithm. The basic
+steps of the algorithm are as follows:
+1. Pad the input P with the pattern 10* such that the length of the input
+    is divisible by r (in this case, 1088)
+2. Break P into an array of r-sized pieces, P_i
+3. Initialize the state array S into a string of b (1600) zero bits
+4. For each block P_i:
+    a. Extend P_i by c zero bits, creating a string of length b
+    b. XOR P_i with S
+    c. Apply the block permutation function to S, creating a new state S
+5. Initialize Z to the empty string
+6. While the length of Z is less than d:
+    a. Append the first r bits of S to Z
+    b. If Z is still less than d bits long, apply the block permutation
+        function to S, yielding a new state S
+7. Truncate Z to d bits
+
+The state permutation functions Theta, Rho, Pi, Chi, and Iota are
+described in the document listed above, and are explained much better
+than I could hope to here.
+
+NOTE: There is currently a bug involving the state functions that is
+    causing the code to not return the correct hash. This is a known bug
+    and I'm working on it! :)
+"""
 
 
 def compute_sha3(input_string):
@@ -149,25 +191,9 @@ def round_constant_generation(t):
 
 def main():
 
-    # USE THIS WHEN READY TO DEPLOY
-    #    parser = argparse.ArgumentParser(
-    #        description='Compute the SHA3-256 hash of an input.')
-    #    parser.add_argument('input', metavar='input', type=str,
-    #                        help='A relative or absolute filepath, a filename'
-    #                             'in the current directory, or a string value')
-    #    cline_args = parser.parse_args()
-    #
-    #    if not cline_args and not function_arg:
-    #        arg = "A"
-    #
-    #    input_hash = compute_sha3(input_string)
-    #    print("This is the hash of the given string or filename: %s" % input_hash)
-
-    # USE THIS WHILE WRITING IN IDE
-    if not len(sys.argv) > 1:
+   if not len(sys.argv) > 1:
         sys.argv.append('A')
 
-    # Consider using mmap here
     if path.isfile(sys.argv[1]):
         input_string = bitstring.BitArray(open(sys.argv[1], "rb").read())
     else:
@@ -179,5 +205,4 @@ def main():
     print("This is the hash of the given string or filename: %s" % input_hash)
 
 
-# hash of "A" 1c9ebd6caf02840a5b2b7f0fc870ec1db154886ae9fe621b822b14fd0bf513d6
 main()
